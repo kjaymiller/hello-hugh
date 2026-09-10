@@ -3,7 +3,7 @@ services:
   # service (PG 18 + PostGIS 3.6.4) so schema/extension behavior lines up.
   # Not used in production — that's the Aiven service via DATABASE_URL.
   db:
-    image: postgis/postgis:18-3.6
+    image: postgres:18-alpine
     environment:
       POSTGRES_DB: hellohugh
       POSTGRES_USER: hellohugh
@@ -11,7 +11,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U hellohugh"]
       interval: 5s
@@ -40,6 +40,7 @@ services:
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_KEY}
       S3_PUBLIC_READ: ${S3_PUBLIC_READ:-false}
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
+      NOMINATIM_USER_AGENT: ${NOMINATIM_USER_AGENT:-hello-hugh-checkin-poc}
       CORS_ORIGIN: ${CORS_ORIGIN:-}
 
 volumes:

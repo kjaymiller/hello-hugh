@@ -5,6 +5,7 @@ import express from "express";
 import cors from "cors";
 import cookieSession from "cookie-session";
 import { router as checkinsRouter } from "./routes/checkins.js";
+import { router as locationsRouter } from "./routes/locations.js";
 import { login, logout, sessionStatus } from "./middleware/auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -13,6 +14,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FRONTEND_DIST = path.join(__dirname, "..", "public");
 
 const app = express();
+
+// Required for req.protocol / req.secure to reflect X-Forwarded-Proto when
+// this runs behind a TLS-terminating proxy (Aiven's Application runtime,
+// or any typical PaaS/load balancer) — see the cookie `secure` note below.
+app.set("trust proxy", 1);
 
 const allowedOrigins = (process.env.CORS_ORIGIN || "")
   .split(",")
@@ -37,7 +43,14 @@ app.use(
     secret: process.env.SESSION_SECRET,
     maxAge: 24 * 60 * 60 * 1000, // 1 day
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    // Deliberately omitted: leaving `secure` unset lets the underlying
+    // `cookies` package auto-detect per request from req.protocol (which
+    // `trust proxy` above makes proxy-aware). Hardcoding `secure: true` from
+    // NODE_ENV === "production" broke login entirely — the `cookies`
+    // package throws when secure is forced true on a request that isn't
+    // actually HTTPS, and cookie-session silently swallows that error, so
+    // no Set-Cookie header was ever sent and every request after login
+    // came back "Not authenticated".
   })
 );
 
@@ -48,6 +61,7 @@ app.post("/api/logout", logout);
 app.get("/api/session", sessionStatus);
 
 app.use("/api/checkins", checkinsRouter);
+app.use("/api/locations", locationsRouter);
 
 // Serve the built frontend (static files only — all dynamic behavior goes
 // through the /api routes above via fetch calls from the browser).

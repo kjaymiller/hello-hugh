@@ -10,9 +10,11 @@ export async function notifySlack(checkin) {
   }
 
   const mapsLink = `https://www.google.com/maps?q=${checkin.lat},${checkin.lng}`;
+  const placeLabel =
+    checkin.nickname || checkin.city || `${checkin.lat.toFixed(5)}, ${checkin.lng.toFixed(5)}`;
   const text =
     `📍 New check-in from Hugh at ${new Date(checkin.created_at).toLocaleString()}\n` +
-    `<${mapsLink}|${checkin.lat.toFixed(5)}, ${checkin.lng.toFixed(5)}>` +
+    `<${mapsLink}|${placeLabel}>` +
     (checkin.accuracy_m ? ` (±${Math.round(checkin.accuracy_m)}m)` : "");
 
   try {

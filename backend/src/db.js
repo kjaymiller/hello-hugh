@@ -27,9 +27,20 @@ function buildPoolConfig() {
     };
   }
 
-  // Local dev / manual runs: sslmode in the URL (require, for the real
-  // Aiven service; absent, for the local postgis container) is sufficient.
-  return { connectionString: raw };
+  // Local dev / manual runs against the real Aiven service directly (no
+  // PROJECT_CA_CERT, since we're not on Aiven's Application runtime): newer
+  // pg-connection-string treats sslmode=require as an alias for
+  // verify-full, which fails against Aiven's CA with SELF_SIGNED_CERT_IN_CHAIN
+  // since we have no CA to verify against here. uselibpqcompat=true
+  // restores the traditional libpq meaning of `require` — encrypt, don't
+  // verify the chain — which is fine for a POC talking directly to a
+  // known Aiven service. Not needed for the local postgis container
+  // (no sslmode in that URL at all).
+  const url = new URL(raw);
+  if (url.searchParams.get("sslmode") === "require") {
+    url.searchParams.set("uselibpqcompat", "true");
+  }
+  return { connectionString: url.toString() };
 }
 
 export const pool = new Pool(buildPoolConfig());

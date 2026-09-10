@@ -4,6 +4,7 @@ import { v4 as uuid } from "uuid";
 import { query } from "../db.js";
 import { uploadCheckinPhoto, resolvePhotoUrl } from "../s3.js";
 import { notifySlack } from "../slack.js";
+import { reverseGeocodeCity } from "../geocode.js";
 import { requireHugh } from "../middleware/auth.js";
 
 const upload = multer({
@@ -17,7 +18,7 @@ export const router = Router();
 router.get("/", async (req, res) => {
   try {
     const { rows } = await query(
-      `SELECT id, created_at, lat, lng, accuracy_m, photo_key, created_by
+      `SELECT id, created_at, lat, lng, accuracy_m, photo_key, created_by, city, nickname
        FROM checkins ORDER BY created_at DESC LIMIT 100`
     );
     const withUrls = await Promise.all(
@@ -39,6 +40,10 @@ router.post("/", requireHugh, upload.single("photo"), async (req, res) => {
     const lat = Number(req.body.lat);
     const lng = Number(req.body.lng);
     const accuracyM = req.body.accuracy_m ? Number(req.body.accuracy_m) : null;
+    // Optional — set when Hugh picked a nearby nicknamed location (or typed
+    // one) on the check-in screen. Takes priority over the geocoded city
+    // wherever a place name is shown.
+    const nickname = req.body.nickname ? String(req.body.nickname).trim() : null;
 
     if (!req.file) {
       return res.status(400).json({ error: "Missing photo" });
@@ -53,12 +58,14 @@ router.post("/", requireHugh, upload.single("photo"), async (req, res) => {
       req.file.buffer,
       req.file.mimetype
     );
+    // Best-effort — a geocoding failure must not block saving the check-in.
+    const city = await reverseGeocodeCity(lat, lng);
 
     const { rows } = await query(
-      `INSERT INTO checkins (id, lat, lng, accuracy_m, photo_key, created_by)
-       VALUES ($1, $2, $3, $4, $5, 'hugh')
-       RETURNING id, created_at, lat, lng, accuracy_m, photo_key, created_by`,
-      [id, lat, lng, accuracyM, photoKey]
+      `INSERT INTO checkins (id, lat, lng, accuracy_m, photo_key, created_by, city, nickname)
+       VALUES ($1, $2, $3, $4, $5, 'hugh', $6, $7)
+       RETURNING id, created_at, lat, lng, accuracy_m, photo_key, created_by, city, nickname`,
+      [id, lat, lng, accuracyM, photoKey, city, nickname]
     );
     const checkin = rows[0];
 

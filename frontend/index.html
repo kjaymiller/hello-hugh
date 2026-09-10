@@ -2,35 +2,59 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Check In</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
-  <body>
-    <nav><a href="/timeline.html">View public timeline →</a></nav>
-    <h1>Check In</h1>
+  <body class="checkin-page">
+    <nav class="top-nav"><a href="/timeline.html">View timeline</a></nav>
 
-    <div id="login-card" class="card">
-      <p>Enter Hugh's password to check in.</p>
-      <input type="password" id="password" placeholder="Password" />
-      <button id="login-btn">Log in</button>
-      <div id="login-status" class="status"></div>
+    <div id="login-screen" class="login-screen">
+      <div class="login-box">
+        <h1>Check In</h1>
+        <p>Enter Hugh's password to continue.</p>
+        <input type="password" id="password" placeholder="Password" />
+        <button id="login-btn">Log in</button>
+        <div id="login-status" class="status"></div>
+      </div>
     </div>
 
-    <div id="checkin-card" class="card" hidden>
-      <p>Location and photo capture:</p>
-      <div id="location-status" class="status">Location: not captured yet</div>
-      <button id="capture-location-btn" type="button">Capture location</button>
-
-      <div style="margin-top: 1rem">
-        <label for="photo">Photo</label>
-        <input type="file" id="photo" accept="image/*" capture="environment" />
+    <div id="checkin-screen" class="checkin-screen" hidden>
+      <div class="preview-area">
+        <div id="preview-placeholder" class="preview-placeholder">
+          Tap "Take photo" below to get started
+        </div>
+        <img id="preview-bg" class="photo-bg" alt="" aria-hidden="true" hidden />
+        <img id="preview-img" alt="Selected check-in photo" hidden />
+        <div class="fade"></div>
       </div>
 
-      <button id="submit-btn" style="margin-top: 1rem" disabled>
-        Submit check-in
-      </button>
-      <div id="submit-status" class="status"></div>
+      <div class="sheet">
+        <div id="location-status" class="status-line">Location: not captured yet</div>
+
+        <div id="nearby-chips" class="chips" hidden></div>
+
+        <button id="show-name-place-btn" type="button" class="link-btn" hidden>
+          + Name this place
+        </button>
+        <div id="name-place-row" class="name-place-row" hidden>
+          <input type="text" id="new-location-name" placeholder="e.g. Home, Office" />
+          <button id="save-location-btn" type="button" class="small">Save</button>
+        </div>
+        <div id="location-error" class="status-line error"></div>
+
+        <div id="submit-status" class="status-line"></div>
+
+        <label for="photo" class="file-label">📷 Take photo</label>
+        <input type="file" id="photo" accept="image/*" capture="environment" />
+
+        <div class="button-row">
+          <button id="capture-location-btn" type="button" class="secondary">
+            📍 Capture location
+          </button>
+          <button id="submit-btn" disabled>Check in</button>
+        </div>
+      </div>
     </div>
 
     <script type="module" src="/src/main.js"></script>

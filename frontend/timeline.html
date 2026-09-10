@@ -2,15 +2,13 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <title>Check-In Timeline</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
-  <body>
-    <nav><a href="/index.html">Hugh: check in →</a></nav>
-    <h1>Check-Ins</h1>
-    <div id="list"></div>
-    <div id="status" class="status">Loading...</div>
+  <body class="timeline-page">
+    <nav class="top-nav"><a href="/index.html">Hugh: check in</a></nav>
+    <div id="feed"></div>
 
     <script type="module" src="/src/timeline.js"></script>
   </body>

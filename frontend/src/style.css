@@ -1,65 +1,440 @@
 :root {
   color-scheme: light dark;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --bg: #fafafa;
+  --text: #1a1a1a;
+  --muted: #6b7280;
+  --card-bg: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --accent: #2563eb;
+  --accent-text: #ffffff;
+  --danger: #dc2626;
+  --success: #16a34a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #121212;
+    --text: #f0f0f0;
+    --muted: #9aa1ac;
+    --card-bg: #1e1e1e;
+    --border: rgba(255, 255, 255, 0.1);
+    --accent: #3b82f6;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Several elements below set their own `display` (flex, for layout) via a
+   class selector, which sits at equal CSS specificity to the browser's
+   default `[hidden] { display: none }` UA rule — and author rules always
+   win over UA rules at equal specificity, regardless of source order. That
+   silently defeated every `el.hidden = true` toggle on such elements. Force
+   it back to actually hiding things. */
+[hidden] {
+  display: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
 }
 
 body {
-  margin: 0;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ---------- shared floating nav pill ---------- */
+
+.top-nav {
+  position: fixed;
+  top: max(0.75rem, env(safe-area-inset-top));
+  right: 0.75rem;
+  z-index: 20;
+}
+
+.top-nav a {
+  display: inline-block;
+  padding: 0.45rem 0.9rem;
+  border-radius: 999px;
+  background: rgba(20, 20, 20, 0.55);
+  color: #fff;
+  font-size: 0.8rem;
+  text-decoration: none;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* ================= Timeline (full-bleed photo feed) ================= */
+
+body.timeline-page {
+  overflow: hidden;
+}
+
+#feed {
+  height: 100dvh;
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+}
+
+#feed::-webkit-scrollbar {
+  display: none;
+}
+
+.checkin-card {
+  position: relative;
+  height: 100dvh;
+  width: 100%;
+  scroll-snap-align: start;
+  overflow: hidden;
+  background: #000;
+}
+
+/* Letterbox treatment: a blurred, darkened copy of the photo fills the
+   frame edge-to-edge behind a second copy shown in full (object-fit:
+   contain) so nothing is cropped, landscape or portrait. */
+.checkin-card .photo-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(35px) brightness(0.55) saturate(1.15);
+  transform: scale(1.15); /* hide the blur's soft edge */
+}
+
+.checkin-card .photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.checkin-card .fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 55%;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.05) 25%,
+    rgba(0, 0, 0, 0.55) 65%,
+    rgba(0, 0, 0, 0.88) 100%
+  );
+}
+
+.checkin-card .info {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 2;
+  padding: 1.5rem 1.25rem calc(1.75rem + env(safe-area-inset-bottom));
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+.checkin-card .info time {
+  display: block;
+  font-size: 1.15rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.checkin-card .info .coords {
+  margin-top: 0.3rem;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+.checkin-card .index-badge {
+  position: absolute;
+  top: max(0.75rem, env(safe-area-inset-top));
+  left: 0.75rem;
+  z-index: 2;
+  font-size: 0.75rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.3rem 0.6rem;
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+}
+
+.feed-status {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 0.95rem;
   padding: 1rem;
-  max-width: 480px;
-  margin-inline: auto;
-  background: #fafafa;
-  color: #1a1a1a;
+  text-align: center;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    background: #161616;
-    color: #eee;
-  }
+.feed-status.error {
+  color: var(--danger);
 }
 
-h1 {
-  font-size: 1.4rem;
+/* ================= Check-in page ================= */
+
+body.checkin-page {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 1rem;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+.login-screen {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  .card {
-    background: #222;
-  }
+.login-box {
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
 }
+
+.login-box h1 {
+  font-size: 1.3rem;
+  margin-bottom: 0.25rem;
+}
+
+.login-box p {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0;
+  margin-bottom: 1.25rem;
+}
+
+.checkin-screen {
+  position: relative;
+  min-height: 100dvh;
+}
+
+.preview-area {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Same letterbox treatment as the timeline: full photo visible, blurred
+   copy filling the frame behind it. */
+.preview-area .photo-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(35px) brightness(0.55) saturate(1.15);
+  transform: scale(1.15);
+}
+
+.preview-area img#preview-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.preview-placeholder {
+  color: #666;
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 0 2rem;
+}
+
+.preview-area .fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 65%;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.65) 60%,
+    rgba(0, 0, 0, 0.92) 100%
+  );
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 5;
+  padding: 1.25rem 1.25rem calc(1.5rem + env(safe-area-inset-bottom));
+  color: #fff;
+}
+
+.sheet .status-line {
+  font-size: 0.85rem;
+  margin-bottom: 0.75rem;
+  min-height: 1.2em;
+  opacity: 0.9;
+}
+
+.sheet .status-line.error {
+  color: #fca5a5;
+  opacity: 1;
+}
+
+.sheet .status-line.success {
+  color: #86efac;
+  opacity: 1;
+}
+
+.button-row {
+  display: flex;
+  gap: 0.6rem;
+}
+
+/* ---- nearby-location chips + "name this place" ---- */
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.chip {
+  padding: 0.4rem 0.85rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+}
+
+.chip.selected {
+  background: var(--accent);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.link-btn {
+  display: inline-block;
+  width: auto;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  text-decoration: underline;
+  padding: 0;
+  margin-bottom: 0.75rem;
+  cursor: pointer;
+}
+
+.name-place-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+
+.name-place-row input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.95rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+.name-place-row input[type="text"]::placeholder {
+  color: rgba(255, 255, 255, 0.55);
+}
+
+button.small {
+  width: auto;
+  padding: 0.6rem 1rem;
+  font-size: 0.9rem;
+}
+
+/* ================= shared controls ================= */
 
 button {
   font-size: 1rem;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
   border: none;
-  background: #2563eb;
-  color: white;
+  background: var(--accent);
+  color: var(--accent-text);
   width: 100%;
   cursor: pointer;
 }
 
+button.secondary {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
 button:disabled {
   background: #94a3b8;
+  color: #e5e7eb;
   cursor: not-allowed;
 }
 
-input[type="password"],
-input[type="file"] {
+input[type="password"] {
   width: 100%;
   font-size: 1rem;
-  padding: 0.5rem;
-  margin: 0.5rem 0;
-  box-sizing: border-box;
+  padding: 0.75rem;
+  margin: 0 0 0.75rem;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+}
+
+/* Native file input is hidden; a styled label triggers it so it matches
+   the rest of the sheet controls. */
+input[type="file"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.file-label {
+  display: block;
+  text-align: center;
+  padding: 0.85rem 1rem;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+  font-weight: 600;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  margin-bottom: 0.6rem;
 }
 
 .status {
@@ -68,37 +443,9 @@ input[type="file"] {
 }
 
 .status.error {
-  color: #dc2626;
+  color: var(--danger);
 }
 
 .status.success {
-  color: #16a34a;
-}
-
-.checkin {
-  display: flex;
-  gap: 0.75rem;
-  align-items: flex-start;
-}
-
-.checkin img {
-  width: 96px;
-  height: 96px;
-  object-fit: cover;
-  border-radius: 8px;
-  flex-shrink: 0;
-}
-
-.checkin .meta {
-  font-size: 0.85rem;
-  color: #666;
-}
-
-nav {
-  margin-bottom: 1rem;
-  font-size: 0.9rem;
-}
-
-nav a {
-  color: #2563eb;
+  color: var(--success);
 }
