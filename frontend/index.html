@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Check In</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body>
+    <nav><a href="/timeline.html">View public timeline →</a></nav>
+    <h1>Check In</h1>
+
+    <div id="login-card" class="card">
+      <p>Enter Hugh's password to check in.</p>
+      <input type="password" id="password" placeholder="Password" />
+      <button id="login-btn">Log in</button>
+      <div id="login-status" class="status"></div>
+    </div>
+
+    <div id="checkin-card" class="card" hidden>
+      <p>Location and photo capture:</p>
+      <div id="location-status" class="status">Location: not captured yet</div>
+      <button id="capture-location-btn" type="button">Capture location</button>
+
+      <div style="margin-top: 1rem">
+        <label for="photo">Photo</label>
+        <input type="file" id="photo" accept="image/*" capture="environment" />
+      </div>
+
+      <button id="submit-btn" style="margin-top: 1rem" disabled>
+        Submit check-in
+      </button>
+      <div id="submit-status" class="status"></div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
