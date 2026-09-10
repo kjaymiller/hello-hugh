@@ -1,14 +1,38 @@
 services:
+  # Local-dev-only database, matching the managed Aiven for PostgreSQL
+  # service (PG 18 + PostGIS 3.6.4) so schema/extension behavior lines up.
+  # Not used in production — that's the Aiven service via DATABASE_URL.
+  db:
+    image: postgis/postgis:18-3.6
+    environment:
+      POSTGRES_DB: hellohugh
+      POSTGRES_USER: hellohugh
+      POSTGRES_PASSWORD: localdev
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hellohugh"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   app:
     build: .
     ports:
       - "3001:3001"
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       PORT: "3001"
       NODE_ENV: production
       SESSION_SECRET: ${SESSION_SECRET}
       HUGH_PASSWORD: ${HUGH_PASSWORD}
-      DATABASE_URL: ${DATABASE_URL}
+      # Defaults to the local postgis db above; set DATABASE_URL (e.g. via
+      # fnox) to point at the real Aiven service instead.
+      DATABASE_URL: ${DATABASE_URL:-postgres://hellohugh:localdev@db:5432/hellohugh}
       S3_ENDPOINT: ${S3_ENDPOINT_URI}
       S3_REGION: ${S3_REGION:-nyc3}
       S3_BUCKET: ${S3_BUCKET:-hugh}
@@ -17,3 +41,6 @@ services:
       S3_PUBLIC_READ: ${S3_PUBLIC_READ:-false}
       SLACK_WEBHOOK_URL: ${SLACK_WEBHOOK_URL}
       CORS_ORIGIN: ${CORS_ORIGIN:-}
+
+volumes:
+  db-data:

@@ -19,9 +19,14 @@ const allowedOrigins = (process.env.CORS_ORIGIN || "")
   .map((o) => o.trim())
   .filter(Boolean);
 
+// Same-origin requests (the normal case, now that this server serves the
+// built frontend itself) never hit CORS at all — this only governs *other*
+// origins. Default to allowing none, rather than wildcarding, since
+// /api/login and /api/checkins carry a session cookie; pass explicit
+// origins via CORS_ORIGIN for cross-origin dev setups (e.g. Vite on :5173).
 app.use(
   cors({
-    origin: allowedOrigins.length ? allowedOrigins : true,
+    origin: allowedOrigins,
     credentials: true,
   })
 );
