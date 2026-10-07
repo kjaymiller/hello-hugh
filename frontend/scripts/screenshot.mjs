@@ -1,6 +1,6 @@
 // Visual smoke test for the mobile UI, driven with Playwright.
 //
-// Requires: `npm install` in frontend/ (playwright is a devDependency) and
+// Requires: `bun install` in frontend/ (playwright is a devDependency) and
 // `npx playwright install chromium` once, plus the app stack running via
 // `fnox exec -- docker compose up -d --build` from the repo root.
 //

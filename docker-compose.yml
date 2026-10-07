@@ -30,9 +30,10 @@ services:
       NODE_ENV: production
       SESSION_SECRET: ${SESSION_SECRET}
       HUGH_PASSWORD: ${HUGH_PASSWORD}
-      # Defaults to the local postgis db above; set DATABASE_URL (e.g. via
-      # fnox) to point at the real Aiven service instead.
-      DATABASE_URL: ${DATABASE_URL:-postgres://hellohugh:localdev@db:5432/hellohugh}
+      # Always the local db above — deliberately NOT read from the host env,
+      # so a DATABASE_URL exported by fnox can't leak in. Deployed, Aiven
+      # injects the real DATABASE_URL itself.
+      DATABASE_URL: postgres://hellohugh:localdev@db:5432/hellohugh
       S3_ENDPOINT: ${S3_ENDPOINT_URI}
       S3_REGION: ${S3_REGION:-nyc3}
       S3_BUCKET: ${S3_BUCKET:-hugh}
