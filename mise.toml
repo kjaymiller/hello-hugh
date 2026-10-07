@@ -1,0 +1,7 @@
+[tasks.up]
+description = "Build and run the app in Docker with fnox secrets"
+run = "fnox exec -- docker compose up --build"
+
+[tasks.migrate]
+description = "Run DB migrations inside the running app container"
+run = "fnox exec -- docker compose exec app npm run migrate"

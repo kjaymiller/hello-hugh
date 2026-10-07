@@ -69,6 +69,12 @@ app.use(express.static(FRONTEND_DIST));
 app.get("/timeline.html", (req, res) =>
   res.sendFile(path.join(FRONTEND_DIST, "timeline.html"))
 );
+app.get("/map.html", (req, res) =>
+  res.sendFile(path.join(FRONTEND_DIST, "map.html"))
+);
+app.get("/backdate.html", (req, res) =>
+  res.sendFile(path.join(FRONTEND_DIST, "backdate.html"))
+);
 app.get("/", (req, res) =>
   res.sendFile(path.join(FRONTEND_DIST, "index.html"))
 );

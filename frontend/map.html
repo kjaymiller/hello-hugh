@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <title>Check-In Timeline</title>
+    <title>Check-In Map</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
-  <body class="timeline-page">
+  <body class="map-page">
     <nav class="top-nav">
-      <a href="/map.html">Map</a>
+      <a href="/timeline.html">Timeline</a>
       <a href="/index.html">Hugh: check in</a>
     </nav>
-    <div id="feed"></div>
-
-    <script type="module" src="/src/timeline.js"></script>
+    <div id="map"></div>
+    <div id="map-status" class="map-status">Loading...</div>
+    <script type="module" src="/src/map.js"></script>
   </body>
 </html>

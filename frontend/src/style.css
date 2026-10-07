@@ -449,3 +449,92 @@ input[type="file"] {
 .status.success {
   color: var(--success);
 }
+
+/* ================= Map + backdate ================= */
+
+.top-nav {
+  display: flex;
+  gap: 0.4rem;
+}
+
+body.map-page #map {
+  position: fixed;
+  inset: 0;
+}
+
+.map-status {
+  position: fixed;
+  left: 0.75rem;
+  bottom: max(1.5rem, env(safe-area-inset-bottom));
+  z-index: 1000;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+  background: var(--card-bg);
+  color: var(--text);
+  border: 1px solid var(--border);
+  font-size: 0.85rem;
+}
+
+.map-status.error {
+  color: var(--danger);
+}
+
+.map-popup img {
+  display: block;
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 6px;
+  margin-bottom: 0.4rem;
+}
+
+body.backdate-page {
+  height: auto;
+  min-height: 100%;
+}
+
+.backdate-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  max-width: 32rem;
+  margin: 0 auto;
+  padding: 4rem 1rem 2rem;
+}
+
+.backdate-form h1 {
+  margin: 0 0 0.5rem;
+  font-size: 1.4rem;
+}
+
+.backdate-form label {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.4rem;
+}
+
+.backdate-form input,
+.backdate-form select {
+  padding: 0.6rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text);
+}
+
+.backdate-preview {
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+
+.picker-map {
+  height: 280px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+}
+
+.backdate-form #submit-btn {
+  margin-top: 0.6rem;
+}

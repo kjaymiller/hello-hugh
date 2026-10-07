@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>Backdate Check-In</title>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="backdate-page">
+    <nav class="top-nav">
+      <a href="/index.html">Check in</a>
+      <a href="/map.html">Map</a>
+    </nav>
+
+    <div id="login-screen" class="login-screen">
+      <div class="login-box">
+        <h1>Backdate</h1>
+        <p>Enter Hugh's password to continue.</p>
+        <input type="password" id="password" placeholder="Password" />
+        <button id="login-btn">Log in</button>
+        <div id="login-status" class="status"></div>
+      </div>
+    </div>
+
+    <form id="backdate-form" class="backdate-form" hidden>
+      <h1>Backdate a check-in</h1>
+
+      <label for="photo">Photo</label>
+      <input type="file" id="photo" accept="image/*" required />
+      <img id="preview-img" class="backdate-preview" alt="Selected photo" hidden />
+
+      <label for="taken-at">When was it taken?</label>
+      <input type="datetime-local" id="taken-at" required />
+
+      <label for="place-search">Where?</label>
+      <div class="name-place-row">
+        <input type="text" id="place-search" placeholder="Search a place or address" />
+        <button id="place-search-btn" type="button" class="small">Search</button>
+      </div>
+      <select id="saved-location" hidden></select>
+      <div id="picker-map" class="picker-map"></div>
+      <div id="location-status" class="status-line">Tap the map to drop a pin.</div>
+
+      <button id="submit-btn" type="submit" disabled>Add check-in</button>
+      <div id="submit-status" class="status-line"></div>
+    </form>
+
+    <script type="module" src="/src/backdate.js"></script>
+  </body>
+</html>

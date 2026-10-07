@@ -16,13 +16,13 @@ Secrets are managed with [fnox](https://github.com/jdx/fnox) (`fnox.toml` at the
 One image serves both the built frontend and the API (see `Dockerfile`) — `docker-compose.yml` maps fnox's secret names onto the env vars the app expects:
 
 ```sh
-fnox exec -- docker compose up --build
+mise run up
 ```
 
 Then run the migration once against the same DB:
 
 ```sh
-fnox exec -- docker compose exec app npm run migrate
+mise run migrate
 ```
 
 (Or, without Docker: `cd backend && fnox exec -- npm run migrate`.)

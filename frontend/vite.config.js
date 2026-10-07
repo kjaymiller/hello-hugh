@@ -10,6 +10,8 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, "index.html"),
         timeline: resolve(__dirname, "timeline.html"),
+        map: resolve(__dirname, "map.html"),
+        backdate: resolve(__dirname, "backdate.html"),
       },
     },
   },
