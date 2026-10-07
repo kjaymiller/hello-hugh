@@ -2,18 +2,21 @@ import { Router } from "express";
 import { v4 as uuid } from "uuid";
 import { query } from "../db.js";
 import { haversineMeters } from "../geo.js";
-import { requireHugh } from "../middleware/auth.js";
+import { requireAccount } from "../middleware/auth.js";
 
 export const router = Router();
 
-// Nicknamed locations are Hugh's own frequented spots — not exposed on the
-// public timeline, so every route here requires his session.
-router.use(requireHugh);
+// Nicknamed locations are an account's own frequented spots — not exposed on
+// the public timeline, so every route here requires an account and only ever
+// sees that account's places.
+router.use(requireAccount);
 
 router.get("/", async (req, res) => {
   try {
     const { rows } = await query(
-      `SELECT id, name, lat, lng, radius_m, created_at FROM locations ORDER BY name ASC`
+      `SELECT id, name, lat, lng, radius_m, created_at FROM locations
+       WHERE account_id = $1 ORDER BY name ASC`,
+      [req.account.id]
     );
     res.json(rows);
   } catch (err) {
@@ -32,7 +35,8 @@ router.get("/nearby", async (req, res) => {
     }
 
     const { rows } = await query(
-      `SELECT id, name, lat, lng, radius_m FROM locations`
+      `SELECT id, name, lat, lng, radius_m FROM locations WHERE account_id = $1`,
+      [req.account.id]
     );
     const nearby = rows
       .map((loc) => ({
@@ -64,10 +68,10 @@ router.post("/", async (req, res) => {
     }
 
     const { rows } = await query(
-      `INSERT INTO locations (id, name, lat, lng, radius_m)
-       VALUES ($1, $2, $3, $4, $5)
+      `INSERT INTO locations (id, name, lat, lng, radius_m, account_id)
+       VALUES ($1, $2, $3, $4, $5, $6)
        RETURNING id, name, lat, lng, radius_m, created_at`,
-      [uuid(), name, lat, lng, radiusM]
+      [uuid(), name, lat, lng, radiusM, req.account.id]
     );
     res.status(201).json(rows[0]);
   } catch (err) {

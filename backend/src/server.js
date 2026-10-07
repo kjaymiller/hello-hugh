@@ -6,6 +6,7 @@ import cors from "cors";
 import cookieSession from "cookie-session";
 import { router as checkinsRouter } from "./routes/checkins.js";
 import { router as locationsRouter } from "./routes/locations.js";
+import { router as adminRouter } from "./routes/admin.js";
 import { login, logout, sessionStatus } from "./middleware/auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -62,6 +63,7 @@ app.get("/api/session", sessionStatus);
 
 app.use("/api/checkins", checkinsRouter);
 app.use("/api/locations", locationsRouter);
+app.use("/api/admin", adminRouter);
 
 // Serve the built frontend (static files only — all dynamic behavior goes
 // through the /api routes above via fetch calls from the browser).

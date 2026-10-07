@@ -1,17 +1,6 @@
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-// Vite doesn't resolve Leaflet's default marker icon URLs from its CSS.
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
+import L from "./leaflet-setup.js";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
-
-L.Icon.Default.mergeOptions({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-});
 
 const loginScreen = document.getElementById("login-screen");
 const form = document.getElementById("backdate-form");

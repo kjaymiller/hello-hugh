@@ -9,6 +9,12 @@ function statusEl(message, kind) {
   return el;
 }
 
+function escapeHtml(s) {
+  const el = document.createElement("div");
+  el.textContent = s;
+  return el.innerHTML;
+}
+
 function card(c, index, total) {
   const el = document.createElement("section");
   el.className = "checkin-card";
@@ -19,6 +25,7 @@ function card(c, index, total) {
     <div class="fade"></div>
     <div class="info">
       <time datetime="${c.created_at}">${new Date(c.created_at).toLocaleString()}</time>
+      <div class="coords">${escapeHtml(c.account_name)}</div>
       <div class="coords">
         ${c.nickname || c.city ? `📍 ${c.nickname || c.city}` : `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}`}${c.accuracy_m ? ` · ±${Math.round(c.accuracy_m)}m` : ""}
       </div>

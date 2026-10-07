@@ -4,7 +4,7 @@ import { v4 as uuid } from "uuid";
 import { query } from "../db.js";
 import { uploadCheckinPhoto, resolvePhotoUrl } from "../s3.js";
 import { reverseGeocodeCity } from "../geocode.js";
-import { requireHugh } from "../middleware/auth.js";
+import { requireAccount } from "../middleware/auth.js";
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -14,11 +14,16 @@ const upload = multer({
 export const router = Router();
 
 // Public, read-only timeline feed — newest first. No auth check on this path.
+// Optional ?account=<slug> narrows it to one account.
 router.get("/", async (req, res) => {
   try {
     const { rows } = await query(
-      `SELECT id, created_at, lat, lng, accuracy_m, photo_key, created_by, city, nickname
-       FROM checkins ORDER BY created_at DESC LIMIT 100`
+      `SELECT c.id, c.created_at, c.lat, c.lng, c.accuracy_m, c.photo_key,
+              c.created_by, c.city, c.nickname, a.slug AS account, a.name AS account_name
+       FROM checkins c JOIN accounts a ON a.id = c.account_id
+       WHERE ($1::text IS NULL OR a.slug = $1)
+       ORDER BY c.created_at DESC LIMIT 100`,
+      [req.query.account || null]
     );
     const withUrls = await Promise.all(
       rows.map(async (row) => ({
@@ -39,8 +44,12 @@ router.get("/", async (req, res) => {
 router.get("/map", async (req, res) => {
   try {
     const { rows } = await query(
-      `SELECT id, created_at, lat, lng, photo_key, city, nickname
-       FROM checkins ORDER BY created_at ASC`
+      `SELECT c.id, c.created_at, c.lat, c.lng, c.photo_key, c.city, c.nickname,
+              a.slug AS account, a.name AS account_name
+       FROM checkins c JOIN accounts a ON a.id = c.account_id
+       WHERE ($1::text IS NULL OR a.slug = $1)
+       ORDER BY c.created_at ASC`,
+      [req.query.account || null]
     );
     const withUrls = await Promise.all(
       rows.map(async ({ photo_key, ...row }) => ({
@@ -55,8 +64,8 @@ router.get("/map", async (req, res) => {
   }
 });
 
-// Hugh-only submission endpoint.
-router.post("/", requireHugh, upload.single("photo"), async (req, res) => {
+// Authenticated submission endpoint — the check-in belongs to the calling account.
+router.post("/", requireAccount, upload.single("photo"), async (req, res) => {
   try {
     const lat = Number(req.body.lat);
     const lng = Number(req.body.lng);
@@ -97,10 +106,10 @@ router.post("/", requireHugh, upload.single("photo"), async (req, res) => {
     const city = await reverseGeocodeCity(lat, lng);
 
     const { rows } = await query(
-      `INSERT INTO checkins (id, lat, lng, accuracy_m, photo_key, created_by, city, nickname, created_at)
-       VALUES ($1, $2, $3, $4, $5, 'hugh', $6, $7, COALESCE($8::timestamptz, now()))
+      `INSERT INTO checkins (id, lat, lng, accuracy_m, photo_key, created_by, city, nickname, created_at, account_id)
+       VALUES ($1, $2, $3, $4, $5, $9, $6, $7, COALESCE($8::timestamptz, now()), $10)
        RETURNING id, created_at, lat, lng, accuracy_m, photo_key, created_by, city, nickname`,
-      [id, lat, lng, accuracyM, photoKey, city, nickname, takenAt]
+      [id, lat, lng, accuracyM, photoKey, city, nickname, takenAt, req.account.slug, req.account.id]
     );
     const checkin = rows[0];
 

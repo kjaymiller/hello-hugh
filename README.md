@@ -2,6 +2,21 @@
 
 See [`location-checkin-poc-plan.md`](./location-checkin-poc-plan.md) for the full project plan.
 
+## Accounts
+
+Check-ins belong to an account. Accounts authenticate with an API key (`Authorization: Bearer <key>` or `X-API-Key: <key>`); Hugh's browser login still works and acts as the `hugh` account. There's no UI — accounts are managed through `/api/admin/*`, guarded by the `ADMIN_API_KEY` env var (unset = admin API disabled, returns 503). Store it with `fnox set ADMIN_API_KEY` and set it on the deployed app.
+
+```sh
+H="Authorization: Bearer $ADMIN_API_KEY"
+curl -H "$H" $URL/api/admin/accounts                                   # list
+curl -H "$H" -H 'Content-Type: application/json' \
+  -d '{"slug":"alice","name":"Alice"}' $URL/api/admin/accounts         # create -> returns api_key ONCE
+curl -X POST -H "$H" $URL/api/admin/accounts/alice/rotate-key          # new key, old one stops working
+curl -X DELETE -H "$H" $URL/api/admin/accounts/alice                   # revoke (check-ins are kept)
+```
+
+Keys are stored only as SHA-256 hashes, so a lost key can't be recovered — rotate it. Rotating also reactivates a revoked account, and is how `hugh` gets his first API key. Accounts submit check-ins with `POST /api/checkins` (multipart: `photo`, `lat`, `lng`, optional `taken_at`, `nickname`), and saved places are private to each account. The public timeline and map show everyone's check-ins; filter with `?account=<slug>`.
+
 ## Structure
 
 - `frontend/` — Vite + vanilla JS. Two pages: `index.html` (Hugh's check-in form, password-gated) and `timeline.html` (public, read-only).

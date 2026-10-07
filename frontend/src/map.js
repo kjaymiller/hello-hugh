@@ -1,5 +1,4 @@
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
+import L from "./leaflet-setup.js";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "";
 
@@ -21,7 +20,9 @@ function popupFor(c) {
   place.textContent = c.nickname || c.city || `${c.lat.toFixed(4)}, ${c.lng.toFixed(4)}`;
   const time = document.createElement("div");
   time.textContent = new Date(c.created_at).toLocaleString();
-  el.append(img, place, time);
+  const who = document.createElement("div");
+  who.textContent = c.account_name;
+  el.append(img, place, who, time);
   return el;
 }
 
