@@ -5,11 +5,11 @@ See [`location-checkin-poc-plan.md`](./location-checkin-poc-plan.md) for the ful
 ## Structure
 
 - `frontend/` — Vite + vanilla JS. Two pages: `index.html` (Hugh's check-in form, password-gated) and `timeline.html` (public, read-only).
-- `backend/` — Node/Express API: session-based auth for Hugh, photo upload to S3-compatible storage, Postgres via `pg`, Slack Incoming Webhook notification.
+- `backend/` — Node/Express API: session-based auth for Hugh, photo upload to S3-compatible storage, Postgres via `pg`.
 
 ## Setup
 
-Secrets are managed with [fnox](https://github.com/jdx/fnox) (`fnox.toml` at the repo root) rather than plaintext `.env` files. Current secrets: `S3_ACCESS_ID`, `S3_SECRET_KEY`, `S3_ENDPOINT_URI`. Still needed: `DATABASE_URL` (from the Aiven console — the Aiven MCP redacts it), `SLACK_WEBHOOK_URL`, `HUGH_PASSWORD`, `SESSION_SECRET`.
+Secrets are managed with [fnox](https://github.com/jdx/fnox) (`fnox.toml` at the repo root) rather than plaintext `.env` files. Current secrets: `S3_ACCESS_ID`, `S3_SECRET_KEY`, `S3_ENDPOINT_URI`. Still needed: `DATABASE_URL` (from the Aiven console — the Aiven MCP redacts it), `HUGH_PASSWORD`, `SESSION_SECRET`.
 
 ### Run everything in Docker (recommended)
 
@@ -51,4 +51,4 @@ HTTPS is required for geolocation and camera access on a real phone (see plan §
 
 ## Status
 
-Phase 0 (scaffold) done. Aiven for PostgreSQL, the S3 bucket, and the Slack webhook still need to be provisioned/configured — env files above are placeholders.
+Phase 0 (scaffold) done. Aiven for PostgreSQL and the S3 bucket still need to be provisioned/configured — env files above are placeholders.

@@ -3,8 +3,7 @@
  * Nominatim. Free, no API key, but its usage policy requires a descriptive
  * User-Agent identifying the app/contact and caps requests around 1/sec —
  * both fine here since check-ins happen one at a time. Best-effort: a
- * failure here must never block saving the check-in itself (same spirit as
- * the Slack notification), so callers should treat a null return as "no
+ * failure here must never block saving the check-in itself, so callers should treat a null return as "no
  * city available" rather than an error.
  */
 export async function reverseGeocodeCity(lat, lng) {

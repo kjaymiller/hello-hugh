@@ -3,7 +3,6 @@ import multer from "multer";
 import { v4 as uuid } from "uuid";
 import { query } from "../db.js";
 import { uploadCheckinPhoto, resolvePhotoUrl } from "../s3.js";
-import { notifySlack } from "../slack.js";
 import { reverseGeocodeCity } from "../geocode.js";
 import { requireHugh } from "../middleware/auth.js";
 
@@ -104,10 +103,6 @@ router.post("/", requireHugh, upload.single("photo"), async (req, res) => {
       [id, lat, lng, accuracyM, photoKey, city, nickname, takenAt]
     );
     const checkin = rows[0];
-
-    // Fire-and-forget: a Slack failure must not fail the check-in. Skipped
-    // for backdated entries — "new check-in" would be misleading noise.
-    if (!takenAt) notifySlack(checkin);
 
     res.status(201).json(checkin);
   } catch (err) {
